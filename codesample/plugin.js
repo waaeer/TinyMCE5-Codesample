@@ -1,9 +1,10 @@
 /*
-Customized version of TinyMCE 4 codesample plugin.
+Customized version of TinyMCE 5 codesample plugin.
 
 It uses external Prism.js js/css components and supports all languages supported by Prism.
 
 Copyright (C) 2016, Roman Miroshnychenko <roman1972@gmail.com>
+Copyright (C) 2019, Ivan Panchenko <ivan.e.panchenko@gmail.com>
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public
@@ -62,18 +63,18 @@ function insertCodeSample(editor, language, code, checked) {
 	editor.undoManager.transact(function() {
 		var node = getSelectedCodeSample(editor);
 
-    var line_numbers = '';
-    if (checked) {
-      line_numbers = ' line-numbers';
-    }
+    	var line_numbers = '';
+    	if (checked) {
+    		line_numbers = ' line-numbers';
+    	}
 
 		code = DOM.encode(code);
 
 		if (node) {
 			editor.dom.setAttrib(node, 'class', 'language-' + language + line_numbers);
 			node.innerHTML = code;
-      wrapCode(node);
-      Prism.highlightElement(node.firstChild);
+      		wrapCode(node);
+      		Prism.highlightElement(node.firstChild);
 			editor.selection.select(node);
 		} else {
 			editor.insertContent('<pre id="__new" class="language-' + language + line_numbers + '">' + code + '</pre>');
@@ -84,7 +85,6 @@ function insertCodeSample(editor, language, code, checked) {
 
 function getSelectedCodeSample(editor) {
 	var node = editor.selection.getNode();
-
 	if (isCodeSample(node)) {
 		return node;
 	}
@@ -96,6 +96,7 @@ function getCurrentCode(editor) {
 	var node = getSelectedCodeSample(editor);
 
 	if (node) {
+console.log('getCuCu',node, 'c=', node.textContent);
 		return node.textContent;
 	}
 
@@ -124,48 +125,57 @@ function getLineNumbers(editor) {
 function openDialog(editor) {
 	editor.windowManager.open({
 		title: "Insert/Edit code sample",
-		minWidth: Math.min(DOM.getViewPort().w, editor.getParam('codesample_dialog_width', 800)),
-		minHeight: Math.min(DOM.getViewPort().h, editor.getParam('codesample_dialog_height', 650)),
-		layout: 'flex',
-		direction: 'column',
-		align: 'stretch',
-		body: [
+		size: 'large',
+		body: {
+			type : 'panel',
+			items: [
 			{
-				type: 'listbox',
+				type: 'selectbox',
 				name: 'language',
 				label: 'Language',
-				maxWidth: 200,
-				value: getCurrentLanguage(editor),
-				values: getLanguages(editor)
+//				maxWidth: 200,
+//				value: getCurrentLanguage(editor),
+				items: getLanguages(editor)
 			},
-      {
-        type: 'checkbox',
-        name: 'line_numbers',
-        label: 'Show line numbers',
-        value: 'true',
-        checked: getLineNumbers(editor)
-      },
 			{
-				type: 'textbox',
+				type: 'checkbox',
+				name: 'line_numbers',
+				label: 'Show line numbers'
+			},
+			{
+				type: 'textarea',
 				name: 'code',
-				multiline: true,
-				spellcheck: false,
-				ariaLabel: 'Code view',
-				flex: 1,
-				style: 'direction: ltr; text-align: left',
-				classes: 'monospace',
-				value: getCurrentCode(editor),
-				autofocus: true
+				label: 'Code view'
 			}
-		],
-		onSubmit: function(e) {
-			insertCodeSample(editor, e.data.language, e.data.code, e.data.line_numbers);
-		}
+			]
+		}, 
+		initialData: {
+			language: getCurrentLanguage(editor),
+			line_numbers: getLineNumbers(editor),
+			code: getCurrentCode(editor)
+	    },
+	
+		onSubmit: function(api) {
+			var data = api.getData();
+			insertCodeSample(editor, data.language, data.code, data.line_numbers);
+			api.close();
+		},
+		buttons: [
+			{
+				type: 'cancel',
+				text: 'Close'
+			},
+			{
+				type: 'submit',
+				text: 'Save',
+				primary: true
+			}
+		]
 	});
 }
 
 tinymce.PluginManager.add('codesample', function(editor, pluginUrl) {
-  var $ = editor.$;
+	var $ = editor.$;
 
 	editor.on('PreProcess', function(e) {
 		$('pre[contenteditable=false]', e.node).
@@ -182,7 +192,7 @@ tinymce.PluginManager.add('codesample', function(editor, pluginUrl) {
 	});
 
 	editor.on('SetContent', function() {
-    var pre_tags = $('pre');
+    	var pre_tags = $('pre');
 
 		var unprocessedCodeSamples = pre_tags.filter(trimArg(isCodeSample)).filter(function(idx, elm) {
 			return elm.contentEditable !== "false";
@@ -201,21 +211,29 @@ tinymce.PluginManager.add('codesample', function(editor, pluginUrl) {
 			});
 		}
 
-    pre_tags.each(function(idx, elm) {
-      if (!elm.getElementsByTagName('code').length) {
-        wrapCode(elm);
-      }
-      Prism.highlightElement(elm.firstChild);
-    });
+   		pre_tags.each(function(idx, elm) {
+    		if (!elm.getElementsByTagName('code').length) {
+				wrapCode(elm);
+			}
+			console.log('call prism', elm.firstChild);
+			Prism.highlightElement(elm.firstChild);
+    	});
 	});
 
 	editor.addCommand('codesample', function() {
 		openDialog(editor);
 	});
 
-	editor.addButton('codesample', {
+	editor.ui.registry.addButton('codesample', {
 		cmd: 'codesample',
-		title: 'Insert/Edit code sample'
+		title: 'Insert/Edit code sample',
+		text: 'Code Sample',
+		onAction: function() { openDialog(editor); }
 	});
+    editor.on('dblclick', function (ev) {
+      if (isCodeSample(ev.target)) {
+        openDialog(editor);
+      }
+    });
 
 });

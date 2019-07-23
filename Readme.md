@@ -23,7 +23,7 @@ with syntax coloring by PrismJS.
 - Copy plugin folders to your web server content directory.
 - Download the necessary [PrismJS](http://prismjs.com/) `.js` and `.css` files.
 - Add links to the necessary `.js` and `.css` files to HTML code of the page which
-you want to use TinyMCE 4 editor in.
+you want to use TinyMCE 5 editor in.
 - Add all the necessary options to TinyMCE 4 configuration
 
 Example configuration:
@@ -43,12 +43,11 @@ Example configuration:
   <script>
     tinymce.init({
       selector: 'textarea#editableContent',
-      plugins: 'advlist autolink link image', // No codesample and preview!
-      toolbar: 'codesample preview',
+      plugins: 'advlist autolink link image', // No codesample !
+      toolbar: 'codesample',
       external_plugins: {
-        codesample: '../../../common_content/js/codesample/plugin.min.js',
-        preview: '../../../common_content/js/preview/plugin.min.js'
-      },
+        codesample: '../../../common_content/js/codesample/plugin.min.js'
+       },
       codesample_languages: [
         {text: 'Python', value: 'python'},
         {text: 'HTML/XML', value: 'markup'},
@@ -74,11 +73,11 @@ Example configuration:
 
 **Important Notes**:
 
-- Do **not** include `codesample` and `preview` plugins in `plugins` configuration option! They are loaded via
+- Do **not** include `codesample`  plugins in `plugins` configuration option! They are loaded via
   [`external_plugins`](https://www.tinymce.com/docs/configure/integration-and-setup/#external_plugins) option.
-- Paths in `external_plugins` list are relative to `tinymce.min.js` file.
+- Paths in `external_plugins` list are relative to `tinymce.min.js` file (or can be absolute).
 - Prism.js files with the necessary language definitions need to be added both to pages where
-  you use TinyMCE 4 editor and to pages with authored content.
+  you use TinyMCE 5 editor and to pages with authored content.
 
 # License
 
