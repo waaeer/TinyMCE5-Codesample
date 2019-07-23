@@ -96,7 +96,6 @@ function getCurrentCode(editor) {
 	var node = getSelectedCodeSample(editor);
 
 	if (node) {
-console.log('getCuCu',node, 'c=', node.textContent);
 		return node.textContent;
 	}
 
