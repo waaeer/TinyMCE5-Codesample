@@ -215,7 +215,6 @@ tinymce.PluginManager.add('codesample', function(editor, pluginUrl) {
     		if (!elm.getElementsByTagName('code').length) {
 				wrapCode(elm);
 			}
-			console.log('call prism', elm.firstChild);
 			Prism.highlightElement(elm.firstChild);
     	});
 	});
